@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.interlinx.dao.DeviceMapper">
+    <resultMap id="BaseResultMap" type="cn.interlinx.entity.Device">
+        <id column="device_id" jdbcType="INTEGER" property="deviceId"/>
+        <result column="userid" jdbcType="INTEGER" property="userid"/>
+        <result column="small_imgurl" jdbcType="VARCHAR" property="smallImgurl"/>
+        <result column="large_imgurl" jdbcType="VARCHAR" property="largeImgurl"/>
+        <result column="desc" jdbcType="VARCHAR" property="desc"/>
+        <result column="take_off" jdbcType="INTEGER" property="takeOff"/>
+        <result column="mode" jdbcType="INTEGER" property="mode"/>
+        <result column="lock" jdbcType="INTEGER" property="lock"/>
+        <result column="wind_power" jdbcType="INTEGER" property="windPower"/>
+        <result column="air_lamp" jdbcType="INTEGER" property="airLamp"/>
+        <result column="timing_set" jdbcType="INTEGER" property="timingSet"/>
+        <result column="water_level" jdbcType="INTEGER" property="waterLevel"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="lat" jdbcType="VARCHAR" property="lat"/>
+        <result column="lng" jdbcType="VARCHAR" property="lng"/>
+        <result column="altitude" jdbcType="INTEGER" property="altitude"/>
+        <result column="device_mac" jdbcType="VARCHAR" property="mac"/>
+        <result column="wifi_mac" jdbcType="VARCHAR" property="wifiMac"/>
+    </resultMap>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from device
+    where device_id = #{deviceId,jdbcType=INTEGER}
+  </delete>
+    <insert id="insert" parameterType="cn.interlinx.entity.Device">
+    insert into device (device_id, userid, small_imgurl, 
+      large_imgurl, `desc`, take_off, 
+      `mode`, `lock`, wind_power, 
+      air_lamp, timing_set, water_level, 
+      `status`, lat, lng, altitude, 
+      device_mac,wifi_mac)
+    values (#{deviceId,jdbcType=INTEGER}, #{userid,jdbcType=INTEGER}, #{smallImgurl,jdbcType=VARCHAR}, 
+      #{largeImgurl,jdbcType=VARCHAR}, #{desc,jdbcType=VARCHAR}, #{takeOff,jdbcType=INTEGER}, 
+      #{mode,jdbcType=INTEGER}, #{lock,jdbcType=INTEGER}, #{windPower,jdbcType=INTEGER}, 
+      #{airLamp,jdbcType=INTEGER}, #{timingSet,jdbcType=INTEGER}, #{waterLevel,jdbcType=INTEGER}, 
+      #{status,jdbcType=INTEGER}, #{lat,jdbcType=VARCHAR}, #{lng,jdbcType=VARCHAR}, #{altitude,jdbcType=INTEGER}, 
+      #{device_mac,jdbcType=VARCHAR},#{wifi_mac,jdbcType=VARCHAR})
+  </insert>
+    <update id="updateByPrimaryKey" parameterType="cn.interlinx.entity.Device">
+    update device
+    set userid = #{userid,jdbcType=INTEGER},
+      small_imgurl = #{smallImgurl,jdbcType=VARCHAR},
+      large_imgurl = #{largeImgurl,jdbcType=VARCHAR},
+      `desc` = #{desc,jdbcType=VARCHAR},
+      take_off = #{takeOff,jdbcType=INTEGER},
+      `mode` = #{mode,jdbcType=INTEGER},
+      `lock` = #{lock,jdbcType=INTEGER},
+      wind_power = #{windPower,jdbcType=INTEGER},
+      air_lamp = #{airLamp,jdbcType=INTEGER},
+      timing_set = #{timingSet,jdbcType=INTEGER},
+      water_level = #{waterLevel,jdbcType=INTEGER},
+      `status` = #{status,jdbcType=INTEGER},
+      lat = #{lat,jdbcType=VARCHAR},
+      lng = #{lng,jdbcType=VARCHAR},
+      altitude = #{altitude,jdbcType=INTEGER},
+      device_mac = #{device_mac,jdbcType=VARCHAR},
+      wifi_mac = #{wifi_mac,jdbcType=VARCHAR}
+    where device_id = #{deviceId,jdbcType=INTEGER} and userid=#{userid,jdbcType=INTEGER}
+  </update>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select device_id, userid, small_imgurl, large_imgurl, `desc`, take_off, `mode`, `lock`, 
+    wind_power, air_lamp, timing_set, water_level, `status`, lat, lng, altitude, device_mac,
+    wifi_mac
+    from device
+    where device_id = #{deviceId,jdbcType=INTEGER}
+  </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+    select device_id, d.userid, small_imgurl, large_imgurl, `desc`, take_off, `mode`, `lock`,
+    wind_power, air_lamp, timing_set, water_level, `status`, lat, lng, altitude, device_mac,wifi_mac
+    from device d,userinfo info where d.userid=#{userId}
+  </select>
+
+    <select id="selectAllDevice" resultMap="BaseResultMap">
+    select device_id,  userid, small_imgurl, large_imgurl, `desc`, take_off, `mode`, `lock`,
+    wind_power, air_lamp, timing_set, water_level, `status`, lat, lng, altitude, device_mac,wifi_mac
+    from device
+  </select>
+
+
+</mapper>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.interlinx.dao.FeedbackMapper">
+  <resultMap id="BaseResultMap" type="cn.interlinx.entity.Feedback">
+    <id column="feedback_id" jdbcType="INTEGER" property="feedbackId" />
+    <result column="userid" jdbcType="INTEGER" property="userid" />
+    <result column="repair_img_url" jdbcType="VARCHAR" property="repairImgUrl" />
+    <result column="feedback" jdbcType="VARCHAR" property="feedback" />
+    <result column="repair_time" jdbcType="TIMESTAMP" property="repairTime" />
+    <result column="repair_phone" jdbcType="VARCHAR" property="repairPhone" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from feedback
+    where feedback_id = #{feedbackId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="cn.interlinx.entity.Feedback">
+    insert into feedback (feedback_id, userid, repair_img_url, 
+      feedback, repair_time, repair_phone
+      )
+    values (#{feedbackId,jdbcType=INTEGER}, #{userid,jdbcType=INTEGER}, #{repairImgUrl,jdbcType=VARCHAR}, 
+      #{feedback,jdbcType=VARCHAR}, #{repairTime,jdbcType=TIMESTAMP}, #{repairPhone,jdbcType=VARCHAR}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="cn.interlinx.entity.Feedback">
+    update feedback
+    set userid = #{userid,jdbcType=INTEGER},
+      repair_img_url = #{repairImgUrl,jdbcType=VARCHAR},
+      feedback = #{feedback,jdbcType=VARCHAR},
+      repair_time = #{repairTime,jdbcType=TIMESTAMP},
+      repair_phone = #{repairPhone,jdbcType=VARCHAR}
+    where feedback_id = #{feedbackId,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select feedback_id, userid, repair_img_url, feedback, repair_time, repair_phone
+    from feedback
+    where feedback_id = #{feedbackId,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select feedback_id, userid, repair_img_url, feedback, repair_time, repair_phone
+    from feedback
+  </select>
+</mapper>

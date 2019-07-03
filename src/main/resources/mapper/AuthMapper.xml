@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.interlinx.dao.AuthMapper">
+  <resultMap id="BaseResultMap" type="cn.interlinx.entity.Auth">
+    <id column="auth_id" jdbcType="INTEGER" property="authId" />
+    <result column="userid" jdbcType="INTEGER" property="userid" />
+    <result column="device_id" jdbcType="INTEGER" property="deviceId" />
+    <result column="feedback_id" jdbcType="INTEGER" property="feedbackId" />
+    <result column="userinfo_id" jdbcType="INTEGER" property="userinfoId" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from auth
+    where auth_id = #{authId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="cn.interlinx.entity.Auth">
+    insert into auth (auth_id, userid, device_id, 
+      feedback_id, userinfo_id)
+    values (#{authId,jdbcType=INTEGER}, #{userid,jdbcType=INTEGER}, #{deviceId,jdbcType=INTEGER}, 
+      #{feedbackId,jdbcType=INTEGER}, #{userinfoId,jdbcType=INTEGER})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="cn.interlinx.entity.Auth">
+    update auth
+    set userid = #{userid,jdbcType=INTEGER},
+      device_id = #{deviceId,jdbcType=INTEGER},
+      feedback_id = #{feedbackId,jdbcType=INTEGER},
+      userinfo_id = #{userinfoId,jdbcType=INTEGER}
+    where auth_id = #{authId,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select auth_id, userid, device_id, feedback_id, userinfo_id
+    from auth
+    where auth_id = #{authId,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select auth_id, userid, device_id, feedback_id, userinfo_id
+    from auth
+  </select>
+</mapper>

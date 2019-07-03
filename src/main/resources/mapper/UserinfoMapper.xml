@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.interlinx.dao.UserinfoMapper">
+    <resultMap id="BaseResultMap" type="cn.interlinx.entity.Userinfo">
+        <id column="userid" jdbcType="INTEGER" property="userid"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="address" jdbcType="VARCHAR" property="address"/>
+        <result column="cardnum" jdbcType="VARCHAR" property="cardnum"/>
+        <result column="idcard" jdbcType="VARCHAR" property="idcard"/>
+        <result column="is_admin" jdbcType="INTEGER" property="isAdmin"/>
+        <result column="last_login_time" jdbcType="TIMESTAMP" property="lastLoginTime"/>
+        <result column="login_out" jdbcType="INTEGER" property="loginOut"/>
+        <result column="sex" jdbcType="VARCHAR" property="sex"/>
+        <result column="imgurl" jdbcType="VARCHAR" property="imgurl"/>
+        <result column="openid" jdbcType="VARCHAR" property="openid"/>
+        <result column="createtime" jdbcType="TIMESTAMP" property="createtime"/>
+        <result column="mac" jdbcType="VARCHAR" property="mac"/>
+    </resultMap>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from userinfo
+    where userid = #{userid,jdbcType=INTEGER}
+  </delete>
+    <insert id="insert" parameterType="cn.interlinx.entity.Userinfo">
+    insert into userinfo (userid, username, phone, 
+      `password`, address, cardnum, 
+      idcard, is_admin, last_login_time, 
+      login_out, sex, imgurl, 
+      openid, createtime, mac
+      )
+    values (#{userid,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, 
+      #{password,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{cardnum,jdbcType=VARCHAR}, 
+      #{idcard,jdbcType=VARCHAR}, #{isAdmin,jdbcType=INTEGER}, #{lastLoginTime,jdbcType=TIMESTAMP}, 
+      #{loginOut,jdbcType=INTEGER}, #{sex,jdbcType=VARCHAR}, #{imgurl,jdbcType=VARCHAR}, 
+      #{openid,jdbcType=VARCHAR}, #{createtime,jdbcType=TIMESTAMP}, #{mac,jdbcType=VARCHAR}
+      )
+  </insert>
+    <update id="updateByPrimaryKey" parameterType="cn.interlinx.entity.Userinfo">
+    update userinfo
+    set username = #{username,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      `password` = #{password,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      cardnum = #{cardnum,jdbcType=VARCHAR},
+      idcard = #{idcard,jdbcType=VARCHAR},
+      is_admin = #{isAdmin,jdbcType=INTEGER},
+      last_login_time = #{lastLoginTime,jdbcType=TIMESTAMP},
+      login_out = #{loginOut,jdbcType=INTEGER},
+      sex = #{sex,jdbcType=VARCHAR},
+      imgurl = #{imgurl,jdbcType=VARCHAR},
+      openid = #{openid,jdbcType=VARCHAR},
+      createtime = #{createtime,jdbcType=TIMESTAMP},
+      mac = #{mac,jdbcType=VARCHAR}
+    where userid = #{userid,jdbcType=INTEGER}
+  </update>
+    <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select userid, username, phone, `password`, address, cardnum, idcard, is_admin, last_login_time, 
+    login_out, sex, imgurl, openid, createtime, mac
+    from userinfo
+    where openid = #{openid,jdbcType=VARCHAR}
+  </select>
+
+    <select id="selectByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select userid, username, phone, `password`, address, cardnum, idcard, is_admin, last_login_time,
+    login_out, sex, imgurl, openid, createtime, mac
+    from userinfo
+    where userid = #{userId,jdbcType=INTEGER}
+
+    </select>
+
+    <select id="selectByLogin" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select userid, username, phone, `password`, address, cardnum, idcard, is_admin, last_login_time,
+    login_out, sex, imgurl, openid, createtime, mac
+    from userinfo
+    where username=#{username,jdbcType=VARCHAR} and password=#{password,jdbcType=VARCHAR}
+  </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+    select userid, username, phone, `password`, address, cardnum, idcard, is_admin, last_login_time, 
+    login_out, sex, imgurl, openid, createtime, mac
+    from userinfo
+  </select>
+</mapper>
