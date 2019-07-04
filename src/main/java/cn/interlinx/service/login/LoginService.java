@@ -13,7 +13,7 @@ public interface LoginService {
 
     int insert(Userinfo record);
 
-    Userinfo selectById(String openId);
+    Userinfo selectByOpenId(String openId);
 
     Userinfo selectByLogin(String userName, String passWord);
 

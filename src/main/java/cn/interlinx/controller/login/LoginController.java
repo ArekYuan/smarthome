@@ -6,6 +6,7 @@ import cn.interlinx.utils.consts.Constant;
 import cn.interlinx.utils.util.HttpUtils;
 import cn.interlinx.utils.util.ResponseUtils;
 import cn.interlinx.utils.util.StringUtils;
+import com.google.gson.Gson;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +28,7 @@ public class LoginController {
     @Autowired
     private LoginService loginService;
     String jsonObject;
-
+    private Gson gson = new Gson();
 
     /**
      * 用户名密码登录，后台登录
@@ -62,7 +63,7 @@ public class LoginController {
      */
     @RequestMapping(value = "/api/loginByAppId", method = RequestMethod.GET)
     public String loginByAppId(@RequestParam(value = "openId") String openId) {
-        Userinfo info = loginService.selectById(openId);
+        Userinfo info = loginService.selectByOpenId(openId);
         if (info != null) {
             jsonObject = ResponseUtils.getResult("200", "获取成功", info);
         } else {
@@ -78,7 +79,7 @@ public class LoginController {
      * @param nickName 用户信息
      * @return
      */
-    @RequestMapping(value = "/api/loginWx", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/loginWx", method = RequestMethod.GET)
     public String getOpenIdByCode(@RequestParam(value = "code") String code,
                                   @RequestParam(value = "nickName") String nickName,
                                   @RequestParam(value = "avatarUrl") String avatarUrl,
@@ -87,24 +88,43 @@ public class LoginController {
 
         boolean isOpenId = resp.containsKey("openid");
         boolean isErrorCode = resp.containsKey("errcode");
-
+        int flag = 0;
+        String msg = "";
         if (isOpenId) {
             String openid = (String) resp.get("openid");
             JSONObject obj = new JSONObject();
             String sessionKey = (String) resp.get("session_key");
-            Userinfo user = insert(openid, nickName, avatarUrl, wifiMac);
-            if (user != null) {
-                obj.put("data", user);
-                jsonObject = ResponseUtils.getResult("0", "请求成功", obj);
-            } else {
-                jsonObject = ResponseUtils.getResult("500", "后台错误", "");
+            Userinfo user = loginService.selectByOpenId(openid);
+            if (user == null) {
+                if (wifiMac.equals("undefined")) {
+                    wifiMac = "";
+                }
+//                Userinfo userinfo = insert(openid, nickName, avatarUrl, wifiMac);
+                Userinfo userinfo = StringUtils.getUser(openid, nickName, avatarUrl, wifiMac);
+                flag = loginService.insert(userinfo);
+
+                if (flag == 1) {
+                    msg = "新增数据成功";
+                } else {
+                    msg = "新增数据失败";
+                }
             }
+            obj.put("openid", openid);
+            obj.put("sessionKey", sessionKey);
+            obj.put("msg", msg);
+            jsonObject = gson.toJson(obj);
+//            if (user != null) {
+//                obj.put("data", user);
+//                jsonObject = ResponseUtils.getResult("0", "请求成功", obj);
+//            } else {
+//                jsonObject = ResponseUtils.getResult("500", "后台错误", "");
+//            }
         } else if (isErrorCode) {
             int errcode = (int) resp.get("errcode");
 
-            jsonObject = ResponseUtils.getResult(errcode + "", "系统繁忙，请稍候重试", resp);
+            jsonObject = ResponseUtils.getResult(errcode + "", "系统繁忙，请稍候重试", "");
         } else {
-            jsonObject = ResponseUtils.getResult("-1", "系统繁忙，请稍候重试", resp);
+            jsonObject = ResponseUtils.getResult("-1", "系统繁忙，请稍候重试", "");
         }
 
 
@@ -112,7 +132,7 @@ public class LoginController {
     }
 
 
-    @RequestMapping(value = "/api/login_wx", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/login_wx", method = RequestMethod.GET)
     public String getOpenId_Code(@RequestParam(value = "code") String code) {
         Map<String, Object> resp = HttpUtils.getWxUserOpenid(code, Constant.APP_ID, Constant.APP_SECRET, Constant.GRANT_TYPE);
         Logger.getLogger(LoginController.class.getSimpleName()).info("----->" + resp.toString());
@@ -126,39 +146,16 @@ public class LoginController {
 //            if (user != null) {
             obj.put("openid", openid);
             obj.put("sessionKey", sessionKey);
-            jsonObject = ResponseUtils.getResult("0", "请求成功", obj);
+            jsonObject = gson.toJson(obj);
         } else if (isErrorCode) {
             int errcode = (int) resp.get("errcode");
-            jsonObject = ResponseUtils.getResult(errcode + "", "系统繁忙，请稍候重试", resp);
+            jsonObject = ResponseUtils.getResult(errcode + "", "系统繁忙，请稍候重试", "");
         } else {
-            jsonObject = ResponseUtils.getResult("-1", "系统繁忙，请稍候重试", resp);
+            jsonObject = ResponseUtils.getResult("-1", "系统繁忙，请稍候重试", "");
         }
         return jsonObject;
     }
 
-
-    /**
-     * 解密用户数据 插入 获取用户信息
-     *
-     * @param nickName
-     */
-    private Userinfo insert(String openId, String nickName, String avatarUrl, String wifiMac) {
-        Userinfo info = null;
-        try {
-//            String result = StringUtils.getUser(encryptedData);
-//            if (null != result && result.length() > 0) {
-            Userinfo user = StringUtils.getUser(openId, nickName, avatarUrl, wifiMac);
-            if (user != null) {
-
-                loginService.insert(user);
-                info = loginService.selectById(user.getOpenid());
-            }
-//            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return info;
-    }
 
     /**
      * 通过用户id 查询用户是否存在
@@ -175,6 +172,32 @@ public class LoginController {
             jsonObject = ResponseUtils.getResult("500", "用户不存在", "");
         }
         return jsonObject;
+    }
+
+    /**
+     * 插入一条数据
+     *
+     * @param nickName
+     * @param avatarUrl
+     * @param wifiMac
+     * @return
+     */
+    @RequestMapping(value = "/api/bindUser", method = RequestMethod.GET)
+    public String BindUser(@RequestParam(value = "openid") String openid, String nickName, String avatarUrl, String wifiMac) {
+        String jsonStr;
+        if (!openid.equals("undefined")) {
+            Userinfo user = loginService.selectByOpenId(openid);
+            if (user == null) {
+                Userinfo userinfo = StringUtils.getUser(openid, nickName, avatarUrl, wifiMac);
+                int flag = loginService.insert(userinfo);
+                jsonStr = ResponseUtils.getResult(flag == 1 ? "200" : "500", flag == 1 ? "保存成功" : "保存失败", "");
+            } else {
+                jsonStr = ResponseUtils.getResult("500", "用户已存在", "");
+            }
+        } else {
+            jsonStr = ResponseUtils.getResult("5001", "openId异常", "");
+        }
+        return jsonStr;
     }
 
 }

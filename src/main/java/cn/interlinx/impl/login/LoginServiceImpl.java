@@ -24,8 +24,8 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public Userinfo selectById(String openId) {
-        return mapper.selectByPrimaryKey(openId);
+    public Userinfo selectByOpenId(String openId) {
+        return mapper.selectByOpenId(openId);
     }
 
     @Override

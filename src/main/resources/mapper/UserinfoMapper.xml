@@ -54,16 +54,14 @@
       mac = #{mac,jdbcType=VARCHAR}
     where userid = #{userid,jdbcType=INTEGER}
   </update>
-    <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select userid, username, phone, `password`, address, cardnum, idcard, is_admin, last_login_time, 
-    login_out, sex, imgurl, openid, createtime, mac
+    <select id="selectByOpenId" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select *
     from userinfo
     where openid = #{openid,jdbcType=VARCHAR}
   </select>
 
     <select id="selectByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select userid, username, phone, `password`, address, cardnum, idcard, is_admin, last_login_time,
-    login_out, sex, imgurl, openid, createtime, mac
+    select *
     from userinfo
     where userid = #{userId,jdbcType=INTEGER}
 

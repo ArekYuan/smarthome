@@ -32,7 +32,7 @@ public class StringUtils {
     }
 
 
-    public static Userinfo getUser(String openId, String nickName,String avatarUrl,String wifiMac) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    public static Userinfo getUser(String openId, String nickName,String avatarUrl,String wifiMac)   {
 //        JSONObject userInfoJSON = new JSONObject(result);
 //        String openId = (String) userInfoJSON.get("openId");
 //        String sex = (String) userInfoJSON.get("gender");
@@ -49,7 +49,14 @@ public class StringUtils {
 //        userInfo.put("province", userInfoJSON.get("province"));
 //        userInfo.put("country", userInfoJSON.get("country"));
 //        userInfo.put("avatarUrl", userInfoJSON.get("avatarUrl"));
-        String passWord = PasswordEncrypt.encodeByMd5("123456");
+        String passWord = null;
+        try {
+            passWord = PasswordEncrypt.encodeByMd5("123456");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         Userinfo user = new Userinfo();
         user.setUsername(nickName);
         user.setImgurl(avatarUrl);

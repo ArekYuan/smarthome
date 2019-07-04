@@ -13,7 +13,7 @@ public interface UserinfoMapper {
 
     int insert(Userinfo record);
 
-    Userinfo selectByPrimaryKey(String openId);
+    Userinfo selectByOpenId(String openId);
 
     Userinfo selectByLogin(@Param("username") String username, @Param("password") String password);
 
