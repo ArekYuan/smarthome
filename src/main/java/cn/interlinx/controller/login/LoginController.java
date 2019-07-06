@@ -108,7 +108,21 @@ public class LoginController {
                 } else {
                     msg = "新增数据失败";
                 }
+            } else {
+//                Userinfo userinfo = StringUtils.getUser(openid, nickName, avatarUrl, wifiMac);
+//                user.setUserid(user.getUserid());
+                user.setOpenid(openid);
+                user.setUsername(nickName);
+                user.setImgurl(avatarUrl);
+                user.setMac(wifiMac);
+                flag = loginService.updateUserInfo(user);
+                if (flag == 1) {
+                    msg = "新增数据成功";
+                } else {
+                    msg = "新增数据失败";
+                }
             }
+
             obj.put("openid", openid);
             obj.put("sessionKey", sessionKey);
             obj.put("msg", msg);
@@ -160,12 +174,12 @@ public class LoginController {
     /**
      * 通过用户id 查询用户是否存在
      *
-     * @param openId
+     * @param userId
      * @return
      */
     @RequestMapping(value = "/api/loginByUserId", method = RequestMethod.GET)
-    public String loginBUserId(@RequestParam(value = "userId") Integer openId) {
-        Userinfo info = loginService.selectByUserId(openId);
+    public String loginByUserId(@RequestParam(value = "userId") Integer userId) {
+        Userinfo info = loginService.selectByUserId(userId);
         if (info != null) {
             jsonObject = ResponseUtils.getResult("200", "获取成功", info);
         } else {
@@ -200,4 +214,26 @@ public class LoginController {
         return jsonStr;
     }
 
+
+    @RequestMapping(value = "/api/updateUser", method = RequestMethod.GET)
+    public String UpdateUserInfo(String sex) {
+        Userinfo info = loginService.selectByUserId(11);
+        String jsonStr = "";
+        if (info != null) {
+//            Userinfo userinfo = new Userinfo();
+//            userinfo.setUserid(11);
+            info.setSex(sex);
+            int flag = loginService.updateUserInfo(info);
+
+            if (flag == 1) {
+                jsonStr = ResponseUtils.getResult("200", "修改数据成功", "");
+            } else {
+                jsonStr = ResponseUtils.getResult("500", "修改数据失败,服务器错误", "");
+            }
+        } else {
+            jsonStr = ResponseUtils.getResult("404", "用户不存在", "");
+
+        }
+        return jsonStr;
+    }
 }

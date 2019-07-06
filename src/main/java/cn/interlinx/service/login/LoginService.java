@@ -19,4 +19,6 @@ public interface LoginService {
 
     Userinfo selectByUserId(Integer userId);
 
+    int updateUserInfo(Userinfo userinfo);
+
 }

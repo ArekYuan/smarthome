@@ -9,17 +9,17 @@ import java.util.Date;
 public class Userinfo implements Serializable {
     private Integer userid;
 
-    private String username = "";
+    private String username;
 
-    private String phone = "";
+    private String phone;
 
-    private String password = "";
+    private String password;
 
-    private String address = "";
+    private String address;
 
-    private String cardnum = "";
+    private String cardnum;
 
-    private String idcard = "";
+    private String idcard;
 
     private Integer isAdmin;
 
@@ -27,15 +27,15 @@ public class Userinfo implements Serializable {
 
     private Integer loginOut;
 
-    private String sex = "";
+    private String sex;
 
-    private String imgurl = "";
+    private String imgurl;
 
-    private String openid = "";
+    private String openid;
 
     private Date createtime;
 
-    private String mac = "";
+    private String mac;
 
     private static final long serialVersionUID = 1L;
 
@@ -52,7 +52,7 @@ public class Userinfo implements Serializable {
     }
 
     public void setUsername(String username) {
-        this.username = username == null ? null : username.trim();
+        this.username = username;
     }
 
     public String getPhone() {
@@ -60,7 +60,7 @@ public class Userinfo implements Serializable {
     }
 
     public void setPhone(String phone) {
-        this.phone = phone == null ? null : phone.trim();
+        this.phone = phone;
     }
 
     public String getPassword() {
@@ -68,7 +68,7 @@ public class Userinfo implements Serializable {
     }
 
     public void setPassword(String password) {
-        this.password = password == null ? null : password.trim();
+        this.password = password;
     }
 
     public String getAddress() {
@@ -76,7 +76,7 @@ public class Userinfo implements Serializable {
     }
 
     public void setAddress(String address) {
-        this.address = address == null ? null : address.trim();
+        this.address = address;
     }
 
     public String getCardnum() {
@@ -84,7 +84,7 @@ public class Userinfo implements Serializable {
     }
 
     public void setCardnum(String cardnum) {
-        this.cardnum = cardnum == null ? null : cardnum.trim();
+        this.cardnum = cardnum;
     }
 
     public String getIdcard() {
@@ -92,7 +92,7 @@ public class Userinfo implements Serializable {
     }
 
     public void setIdcard(String idcard) {
-        this.idcard = idcard == null ? null : idcard.trim();
+        this.idcard = idcard;
     }
 
     public Integer getIsAdmin() {
@@ -124,7 +124,7 @@ public class Userinfo implements Serializable {
     }
 
     public void setSex(String sex) {
-        this.sex = sex == null ? null : sex.trim();
+        this.sex = sex;
     }
 
     public String getImgurl() {
@@ -132,7 +132,7 @@ public class Userinfo implements Serializable {
     }
 
     public void setImgurl(String imgurl) {
-        this.imgurl = imgurl == null ? null : imgurl.trim();
+        this.imgurl = imgurl;
     }
 
     public String getOpenid() {
@@ -140,7 +140,7 @@ public class Userinfo implements Serializable {
     }
 
     public void setOpenid(String openid) {
-        this.openid = openid == null ? null : openid.trim();
+        this.openid = openid;
     }
 
     public Date getCreatetime() {
@@ -156,7 +156,7 @@ public class Userinfo implements Serializable {
     }
 
     public void setMac(String mac) {
-        this.mac = mac == null ? null : mac.trim();
+        this.mac = mac;
     }
 
     @Override

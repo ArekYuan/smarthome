@@ -7,11 +7,11 @@ public class Device implements Serializable {
 
     private Integer userid;
 
-    private String smallImgurl = "";
+    private String smallImgurl;
 
-    private String largeImgurl = "";
+    private String largeImgurl;
 
-    private String desc = "";
+    private String desc;
 
     private Integer takeOff;
 
@@ -29,15 +29,15 @@ public class Device implements Serializable {
 
     private Integer status;
 
-    private String lat = "";
+    private String lat;
 
-    private String lng = "";
+    private String lng;
 
     private Integer altitude;
 
-    private String device_mac = "";
+    private String device_mac;
 
-    private String wifi_mac = "";
+    private String wifi_mac;
 
 
     public String getDevice_mac() {
@@ -71,7 +71,7 @@ public class Device implements Serializable {
     }
 
     public void setSmallImgurl(String smallImgurl) {
-        this.smallImgurl = smallImgurl == null ? null : smallImgurl.trim();
+        this.smallImgurl = smallImgurl;
     }
 
     public String getLargeImgurl() {
@@ -79,7 +79,7 @@ public class Device implements Serializable {
     }
 
     public void setLargeImgurl(String largeImgurl) {
-        this.largeImgurl = largeImgurl == null ? null : largeImgurl.trim();
+        this.largeImgurl = largeImgurl;
     }
 
     public String getDesc() {
@@ -87,7 +87,7 @@ public class Device implements Serializable {
     }
 
     public void setDesc(String desc) {
-        this.desc = desc == null ? null : desc.trim();
+        this.desc = desc;
     }
 
     public Integer getTakeOff() {
@@ -159,7 +159,7 @@ public class Device implements Serializable {
     }
 
     public void setLat(String lat) {
-        this.lat = lat == null ? null : lat.trim();
+        this.lat = lat;
     }
 
     public String getLng() {
@@ -167,7 +167,7 @@ public class Device implements Serializable {
     }
 
     public void setLng(String lng) {
-        this.lng = lng == null ? null : lng.trim();
+        this.lng = lng;
     }
 
     public Integer getAltitude() {

@@ -39,7 +39,7 @@ public class Feedback implements Serializable {
     }
 
     public void setRepairImgUrl(String repairImgUrl) {
-        this.repairImgUrl = repairImgUrl == null ? null : repairImgUrl.trim();
+        this.repairImgUrl = repairImgUrl;
     }
 
     public String getFeedback() {
@@ -47,7 +47,7 @@ public class Feedback implements Serializable {
     }
 
     public void setFeedback(String feedback) {
-        this.feedback = feedback == null ? null : feedback.trim();
+        this.feedback = feedback;
     }
 
     public Date getRepairTime() {
@@ -63,7 +63,7 @@ public class Feedback implements Serializable {
     }
 
     public void setRepairPhone(String repairPhone) {
-        this.repairPhone = repairPhone == null ? null : repairPhone.trim();
+        this.repairPhone = repairPhone;
     }
 
     @Override

@@ -33,7 +33,7 @@ public class User implements Serializable {
     }
 
     public void setUsername(String username) {
-        this.username = username == null ? null : username.trim();
+        this.username = username;
     }
 
     public String getSex() {
@@ -41,7 +41,7 @@ public class User implements Serializable {
     }
 
     public void setSex(String sex) {
-        this.sex = sex == null ? null : sex.trim();
+        this.sex = sex ;
     }
 
     public String getImgurl() {
@@ -49,7 +49,7 @@ public class User implements Serializable {
     }
 
     public void setImgurl(String imgurl) {
-        this.imgurl = imgurl == null ? null : imgurl.trim();
+        this.imgurl = imgurl ;
     }
 
     public String getOpenid() {
@@ -57,7 +57,7 @@ public class User implements Serializable {
     }
 
     public void setOpenid(String openid) {
-        this.openid = openid == null ? null : openid.trim();
+        this.openid = openid;
     }
 
     public Date getCreatetime() {
@@ -73,7 +73,7 @@ public class User implements Serializable {
     }
 
     public void setMac(String mac) {
-        this.mac = mac == null ? null : mac.trim();
+        this.mac = mac ;
     }
 
     @Override

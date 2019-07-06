@@ -37,4 +37,9 @@ public class LoginServiceImpl implements LoginService {
     public Userinfo selectByUserId(Integer userId) {
         return mapper.selectByUserId(userId);
     }
+
+    @Override
+    public int updateUserInfo(Userinfo userinfo) {
+        return mapper.updateByPrimaryKey(userinfo);
+    }
 }
