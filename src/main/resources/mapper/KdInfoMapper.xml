@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.interlinx.dao.KdInfoMapper">
+    <resultMap id="BaseResultMap" type="cn.interlinx.entity.KD_Info">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="kd_name" jdbcType="VARCHAR" property="kd_name"/>
+        <result column="kd_num" jdbcType="VARCHAR" property="kd_num"/>
+    </resultMap>
+
+
+    <select id="selectByKdName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select *
+        from kd_info
+        where  kd_name LIKE CONCAT('%',#{expCode},'%')
+        <!--</if>-->
+    </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+    select *
+    from kd_info
+  </select>
+</mapper>

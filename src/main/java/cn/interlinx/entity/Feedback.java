@@ -16,6 +16,16 @@ public class Feedback implements Serializable {
 
     private String repairPhone;
 
+    private String repairName;
+
+    public String getRepairName() {
+        return repairName;
+    }
+
+    public void setRepairName(String repairName) {
+        this.repairName = repairName;
+    }
+
     private static final long serialVersionUID = 1L;
 
     public Integer getFeedbackId() {

@@ -35,7 +35,7 @@ public class DeviceController {
      * @param userId
      * @return
      */
-    @RequestMapping(value = "api/device/connect")
+    @RequestMapping(value = "/smarthome/api/device/connect")
     public String connectDevice(Integer userId) {
         Userinfo userinfo = loginService.selectByUserId(userId);
         if (userinfo != null) {
@@ -62,7 +62,7 @@ public class DeviceController {
      *
      * @return String
      */
-    @RequestMapping(value = "api/device/selectAllDevice")
+    @RequestMapping(value = "/smarthome/api/device/selectAllDevice")
     public String selectAllDevice() {
         List<Device> devices = service.selectAll();
         if (devices != null && devices.size() > 0) {
@@ -79,7 +79,7 @@ public class DeviceController {
      * @param device 设备信息
      * @return
      */
-    @RequestMapping(value = "/api/device/bindDevice", method = RequestMethod.POST)
+    @RequestMapping(value = "/smarthome/api/device/bindDevice", method = RequestMethod.POST)
     public String bindDevice(Device device) {
         Userinfo userinfo = loginService.selectByUserId(device.getUserid());
         if (userinfo != null) {
@@ -102,7 +102,7 @@ public class DeviceController {
      * @param id 设备id
      * @return
      */
-    @RequestMapping(value = "/api/device/unBindDevice", method = RequestMethod.GET)
+    @RequestMapping(value = "/smarthome/api/device/unBindDevice", method = RequestMethod.GET)
     public String unBindDevice(@RequestParam("id") Integer id) {
 
         Device device = service.selectId(id);
@@ -127,7 +127,7 @@ public class DeviceController {
      * @param id 设备id
      * @return
      */
-    @RequestMapping(value = "/api/device/findDeviceById", method = RequestMethod.GET)
+    @RequestMapping(value = "/smarthome/api/device/findDeviceById", method = RequestMethod.GET)
     public String findDeviceById(@RequestParam("id") Integer id) {
         Device device = service.selectId(id);
         if (device != null) {
@@ -144,7 +144,7 @@ public class DeviceController {
      * @param id
      * @return
      */
-    @RequestMapping(value = "/api/device/fndAllDevice", method = RequestMethod.GET)
+    @RequestMapping(value = "/smarthome/api/device/fndAllDevice", method = RequestMethod.GET)
     public String findAllDevice(@RequestParam("userId") Integer id) {
         List<Device> deviceList = service.selectAll(id);
         if (deviceList != null && deviceList.size() > 0) {
@@ -162,7 +162,7 @@ public class DeviceController {
      * @param device
      * @return
      */
-    @RequestMapping(value = "/api/device/updateDevice", method = RequestMethod.POST)
+    @RequestMapping(value = "/smarthome/api/device/updateDevice", method = RequestMethod.POST)
     public String upDateDevice(Device device) throws IOException {
         Device device1 = service.selectId(device.getDeviceId());
         if (device1 != null) {

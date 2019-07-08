@@ -11,7 +11,7 @@ public class WeChatController {
     /**
      * token 验证
      */
-    @RequestMapping(value = "api/personal/signatureWx", method = RequestMethod.GET)
+    @RequestMapping(value = "/smarthome/api/personal/signatureWx", method = RequestMethod.GET)
     public String signatureWx(String signature, String timestamp, String nonce, String echostr) {
         String str = "";
         if (signature != null && CheckoutUtil.checkSignature(signature, timestamp, nonce)) {
