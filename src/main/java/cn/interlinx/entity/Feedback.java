@@ -18,6 +18,16 @@ public class Feedback implements Serializable {
 
     private String repairName;
 
+    private Integer descType;
+
+    public Integer getDescType() {
+        return descType;
+    }
+
+    public void setDescType(Integer descType) {
+        this.descType = descType;
+    }
+
     public String getRepairName() {
         return repairName;
     }

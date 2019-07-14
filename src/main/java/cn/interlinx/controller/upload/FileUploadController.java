@@ -21,7 +21,7 @@ public class FileUploadController {
      * @return
      * @throws IOException
      */
-    @RequestMapping(value = "/smarthome/api/upload", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/upload", method = RequestMethod.POST)
     public String upLoad(HttpServletRequest request,
                          @RequestParam("file") MultipartFile file) throws IOException {
         if (!file.isEmpty()) {

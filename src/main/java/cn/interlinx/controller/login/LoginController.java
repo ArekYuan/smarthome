@@ -37,7 +37,7 @@ public class LoginController {
      * @param passWord
      * @return
      */
-    @RequestMapping(value = "/smarthome/api/loginByName", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/loginByName", method = RequestMethod.GET)
     public String loginByLogin(@RequestParam(value = "username") String userName, @RequestParam(value = "password") String passWord) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         Userinfo info;
         if (userName != null && passWord != null) {
@@ -61,7 +61,7 @@ public class LoginController {
      * @param openId
      * @return
      */
-    @RequestMapping(value = "/smarthome/api/loginByAppId", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/loginByAppId", method = RequestMethod.GET)
     public String loginByAppId(@RequestParam(value = "openId") String openId) {
         Userinfo info = loginService.selectByOpenId(openId);
         if (info != null) {
@@ -79,7 +79,7 @@ public class LoginController {
      * @param nickName 用户信息
      * @return
      */
-    @RequestMapping(value = "/smarthome/api/loginWx", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/loginWx", method = RequestMethod.GET)
     public String getOpenIdByCode(@RequestParam(value = "code") String code,
                                   @RequestParam(value = "nickName") String nickName,
                                   @RequestParam(value = "avatarUrl") String avatarUrl,
@@ -152,7 +152,7 @@ public class LoginController {
     }
 
 
-    @RequestMapping(value = "/smarthome/api/login_wx", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/login_wx", method = RequestMethod.GET)
     public String getOpenId_Code(@RequestParam(value = "code") String code) {
         Map<String, Object> resp = HttpUtils.getWxUserOpenid(code, Constant.APP_ID, Constant.APP_SECRET, Constant.GRANT_TYPE);
         Logger.getLogger(LoginController.class.getSimpleName()).info("----->" + resp.toString());
@@ -183,7 +183,7 @@ public class LoginController {
      * @param userId
      * @return
      */
-    @RequestMapping(value = "/smarthome/api/loginByUserId", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/loginByUserId", method = RequestMethod.GET)
     public String loginByUserId(@RequestParam(value = "userId") Integer userId) {
         Userinfo info = loginService.selectByUserId(userId);
         if (info != null) {
@@ -202,7 +202,7 @@ public class LoginController {
      * @param wifiMac
      * @return
      */
-    @RequestMapping(value = "/smarthome/api/bindUser", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/bindUser", method = RequestMethod.GET)
     public String BindUser(@RequestParam(value = "openid") String openid, String nickName, String avatarUrl, String wifiMac) {
         String jsonStr;
         if (!openid.equals("undefined")) {

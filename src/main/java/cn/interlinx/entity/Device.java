@@ -35,17 +35,17 @@ public class Device implements Serializable {
 
     private Integer altitude;
 
-    private String device_mac;
+    private String deviceKey;
 
     private String wifi_mac;
 
 
-    public String getDevice_mac() {
-        return device_mac;
+    public String getDevice_key() {
+        return deviceKey;
     }
 
-    public void setDevice_mac(String device_mac) {
-        this.device_mac = device_mac;
+    public void setDevice_key(String device_mac) {
+        this.deviceKey = deviceKey;
     }
 
     private static final long serialVersionUID = 1L;
@@ -208,7 +208,7 @@ public class Device implements Serializable {
         sb.append(", lat=").append(lat);
         sb.append(", lng=").append(lng);
         sb.append(", altitude=").append(altitude);
-        sb.append(", device_mac=").append(device_mac);
+        sb.append(", device_key=").append(deviceKey);
         sb.append(", wifi_mac=").append(wifi_mac);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");

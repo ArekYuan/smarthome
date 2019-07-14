@@ -43,4 +43,9 @@ public class DeviceServiceImpl implements DeviceService {
     public List<Device> selectAll() {
         return mapper.selectAll();
     }
+
+    @Override
+    public Device selectByKey(String key) {
+        return mapper.selectByDeviceKey(key);
+    }
 }

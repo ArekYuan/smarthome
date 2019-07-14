@@ -23,7 +23,6 @@ public class HexUtil {
             if (hex.length() == 1) {
                 hex = "0" + hex;
             }
-            log.info("---hex-->" + hex);
             list.add(hex);
         }
         return list;
@@ -46,6 +45,43 @@ public class HexUtil {
 
     private static byte charToByte(char c) {
         return (byte) "0123456789ABCDEF".indexOf(c);
+    }
+
+
+
+    /**
+     * @param strList mcu 端 向服务器发送的 16进通讯码
+     * @return String
+     */
+    public static String getMcuData(List<String> strList) {
+        String str = "";
+        if (strList != null && strList.size() > 0) {
+            if (strList.get(0).equals("55") && strList.get(1).equals("AA")) {
+//                int len = Integer.valueOf(List.get(2));
+                int b = Integer.parseInt(strList.get(2), 16);//将16进制数转成10进制数
+                int b1 = Integer.parseInt(strList.get(3), 16);//将16进制数转成10进制数
+                int a1 = (int) (b << 8 | b1);
+                System.out.println("---数据长度---->" + a1);
+                if (a1 == strList.size()) {
+                    switch (strList.get(4)) {
+                        case "10"://0x10:设备登录到服务器
+                            str = "0x10";
+                            break;
+                        case "11"://0x11:设备状态上报
+                            str = "0x11";
+                            break;
+                        case "12"://0x12:服务器控制设备状态
+                            str = "0x12";
+                            break;
+                        case "13"://0x13:心跳包
+                            str = "0x13";
+                            break;
+                    }
+                }
+
+            }
+        }
+        return str;
     }
 
 }

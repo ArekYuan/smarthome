@@ -1,18 +1,21 @@
 package cn.interlinx.iot;
 
 import cn.interlinx.controller.device.DeviceController;
+import cn.interlinx.entity.Device;
+import cn.interlinx.service.intel.DeviceService;
 import cn.interlinx.utils.util.HexUtil;
+import cn.interlinx.utils.util.SpringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 
+import javax.persistence.Convert;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -29,8 +32,11 @@ public class Server implements Runnable {
 
     private Logger log = Logger.getLogger(Server.class.getSimpleName());
 
-    @Autowired
-    DeviceController deviceController;
+    //    @Autowired
+    DeviceService service;
+
+//    @Autowired
+//    DeviceController controller;
 
     public Server(int port) {
         this.port = port;
@@ -48,10 +54,10 @@ public class Server implements Runnable {
             serverSocketChannel.socket().bind(new InetSocketAddress(port));
             //将通道注册在选择器上面，并将准备连接状态作为通道订阅时间
             serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
-
             stop = false;
             System.out.println("服务器已经启动，端口号：" + port);
             log.info("服务器已经启动，端口号" + port);
+            service = SpringUtil.getBean(DeviceService.class);
         } catch (IOException e) {
             e.printStackTrace();
             log.finest("socket--开启异常-->" + e.getMessage());
@@ -100,19 +106,74 @@ public class Server implements Runnable {
                             byte[] bytes = new byte[byteBuffer.remaining()];
                             //向缓冲区读数据到字节数组
                             byteBuffer.get(bytes);
-                            expression = new String(bytes, "UTF-8");
+//                            expression = new String(bytes, "UTF-8");
                             List<String> list = HexUtil.bytes2HexString(bytes);
-//                            List<String> list1 = HexUtil.bytes2Hex(bytes);
-                            String data = initData(list);
+                            String[] a = list.toArray(new String[list.size()]);
 
+                            for (int i = 0; i < a.length; i++) {
+                                log.info("--mcu-通讯码->" + a[i]);
+                            }
+//                            List<String> list1 = HexUtil.bytes2Hex(bytes);
+
+                            String data = HexUtil.getMcuData(list);
+                            String sum = getSun(list);
+
+                            System.out.println("----sun-->" + sum);
+                            String he = list.get(list.size() - 1);
+//                            System.out.println("---he-->" + he);
+                            boolean isToken = false;
+                            if (he.equals(sum)) {//验证成功
+                                isToken = true;
+                                switch (data) {
+                                    case "0x10"://设备登录到服务器
+                                        int chang_id = getChangId(list);
+                                        int sheBei_id = getSBId(list);
+                                        String mac = getMac(list);
+                                        System.out.println("-厂商-id-->" + chang_id);
+                                        System.out.println("-設備-id-->" + sheBei_id);
+                                        System.out.println("-wifi-mac-->" + mac);
+                                        String key = String.valueOf(chang_id + sheBei_id);
+                                        Device device = service.selectByKey(key);
+                                        if (device != null && device.getWifi_mac() != null) {
+                                            expression = key;
+                                        } else {
+                                            expression = key;
+                                            Device device1 = new Device();
+                                            device1.setWifi_mac(mac);
+                                            device1.setDevice_key(key);
+                                            int flag = service.insert(device1);
+                                            if (flag == 1) {
+                                                System.out.println("插入设备成功");
+                                            } else {
+                                                System.out.println("插入设备失败");
+                                            }
+                                        }
+                                        break;
+                                    case "0x11"://设备状态上报
+                                        break;
+                                    case "0x12"://服务器控制设备状态
+                                        break;
+                                    case "0x13"://心跳包
+                                        break;
+                                    default://上报失败
+                                        break;
+                                }
+                            } else {//验证失败
+
+                                isToken = false;
+                            }
+
+
+                            log.info("--mcu-哪种状态->" + data);
                             boolean flag = ChannelPool.channelMap.containsKey(expression);
                             if (!flag) {
                                 ChannelClient client = new ChannelClient(expression, socketChannel);
                                 ChannelPool.add(client);
                             }
                             if (socketChannel.finishConnect()) {
-                                sendMessage(list, expression);
+                                sendData(data, expression, isToken);
                             }
+
                         }
                     }
                     iterator.remove();
@@ -135,37 +196,101 @@ public class Server implements Runnable {
     }
 
     /**
-     * 16进制数据
-     * @param strList
+     * 数据域 校验和
+     *
+     * @param list
      * @return
      */
-    private String initData(List<String> strList) {
-        String str = "";
-        if (strList != null && strList.size() > 0) {
-            if (strList.get(0).equals("55") && strList.get(1).equals("AA")) {
-//                int len = Integer.valueOf(List.get(2));
-                int len = Integer.parseInt(strList.get(2), 16);//将16进制数转成10进制数
-                if (len == strList.size()) {
-                    switch (strList.get(3)) {
-                        case "10"://0x10:设备登录到服务器
-                            break;
-                        case "11"://0x11:设备状态上报
-                            break;
-                        case "12"://0x12:服务器控制设备状态
-                            break;
-                        case "13"://0x13:心跳包
-                            break;
-                    }
-                }
-
-            }
+    private String getSun(List<String> list) {
+        int sum = 0;
+        for (int i = 0; i < list.size() - 1; i++) {
+            sum += Integer.parseInt(list.get(i), 16);
         }
-        return str;
+        int mod = sum % 256;
+        String hex = Integer.toHexString(mod);
+        int len = hex.length();
+        if (len < 2) {
+            hex = "0" + hex;
+        }
+        return hex;
+
     }
 
-    private void sendMessage(List<String> strList, String expression) {
+    private String getMac(List<String> list) {
+        StringBuffer sb = new StringBuffer();
+        List<String> list1 = list.subList(13, 19);
+        for (int i = 0; i < list1.size(); i++) {
+            String str = list1.get(i);
+            String lower;
+            lower = str.toLowerCase();
+            if (i == 0) {
+                lower = lower + ":";
+                sb.append(lower);
+            } else if (i == list1.size() - 1) {
+                sb.append(lower);
+            } else {
+                sb.append(lower + ":");
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 获取设备id
+     *
+     * @param list
+     * @return
+     */
+    private int getSBId(List<String> list) {
+        int b2 = Integer.parseInt(list.get(9), 16);//将16进制数转成10进制数
+        int b3 = Integer.parseInt(list.get(10), 16);//将16进制数转成10进制数
+        int b4 = Integer.parseInt(list.get(11), 16);
+        int b5 = Integer.parseInt(list.get(12), 16);
+        int id = (int) (b2 << 24 | b3 << 16 | b4 << 8 | b5);
+        return id;
+    }
+
+    private int getChangId(List<String> strList) {
+        int b2 = Integer.parseInt(strList.get(5), 16);//将16进制数转成10进制数
+        int b3 = Integer.parseInt(strList.get(6), 16);//将16进制数转成10进制数
+        int b4 = Integer.parseInt(strList.get(7), 16);
+        int b5 = Integer.parseInt(strList.get(8), 16);
+        int id = (int) (b2 << 24 | b3 << 16 | b4 << 8 | b5);
+        return id;
+    }
+
+    private void sendData(String data, String expression, boolean isToken) {
+        switch (data) {
+            case "0x10"://0x10:设备登录到服务器
+                sendMessage(expression, isToken);
+                break;
+//            case "0x11"://0x11:设备状态上报
+//                break;
+//            case "0x12"://0x12:服务器控制设备状态
+//                break;
+            case "0x13"://0x13:心跳包
+
+
+                break;
+        }
+
+    }
+
+
+    /**
+     * 像mcu  端 发送消息
+     *
+     * @param expression key
+     * @param isToken
+     */
+    private void sendMessage(String expression, boolean isToken) {
         try {
-            String resp = "0x11,";
+            String resp;
+            if (isToken) {
+                resp = "55 AA 14 10 00 07";
+            } else {
+                resp = "55 AA 14 10 FF 07";
+            }
 
             ChannelClient client = ChannelPool.getChannelClient(expression);
             byte[] req = resp.getBytes();
@@ -176,7 +301,7 @@ public class Server implements Runnable {
             if (!writeBuffer.hasRemaining()) {
                 System.out.println("向客戶端发送消息：" + resp);
                 log.info("向客戶端发送消息：" + resp);
-            }else{
+            } else {
                 writeBuffer.clear();
             }
 
@@ -185,7 +310,6 @@ public class Server implements Runnable {
             log.finest("socket--消息發送異常-->" + e.getMessage());
         }
     }
-
 
 
 }

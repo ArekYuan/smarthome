@@ -33,7 +33,7 @@ public class PersonalController {
      * @param expNo   物流单号
      * @return
      */
-    @RequestMapping(value = "/smarthome/api/personal/orderTraces", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/orderTraces", method = RequestMethod.POST)
     public String getOrderTraces(Integer userId, @Param("expCode") String expCode, String expNo) {
 //        Userinfo userinfo = loginService.selectByUserId(userId);
         KD_Info info = personalService.selectByKdName(expCode);
@@ -62,7 +62,7 @@ public class PersonalController {
      * @param desc
      * @return
      */
-    @RequestMapping(value = "/smarthome/api/personal/addFeedBack")
+    @RequestMapping(value = "/api/addFeedBack")
     public String addFeedBack(Integer userId, String repairName, String repairPhone, String repairImgUrl, String desc) {
         String jsonStr;
         Feedback feedback = new Feedback();
@@ -71,6 +71,7 @@ public class PersonalController {
         feedback.setRepairImgUrl(repairImgUrl);
         feedback.setRepairName(repairName);
         feedback.setRepairPhone(repairPhone);
+        feedback.setDescType(1);
         feedback.setRepairTime(new Date());
         int flag = personalService.addFeedBack(feedback);
         if (flag == 1) {
@@ -82,5 +83,32 @@ public class PersonalController {
         return jsonStr;
     }
 
+    /**
+     * 给我们留言
+     *
+     * @param userId      用户id
+     * @param repairName  留言人姓名
+     * @param repairPhone 留言人电话号码
+     * @param desc        建议
+     * @return JsonStr
+     */
+    @RequestMapping(value = "/api/liuYan")
+    public String addFeedBack(Integer userId, String repairName, String repairPhone, String desc) {
+        String jsonStr;
+        Feedback feedback = new Feedback();
+        feedback.setUserid(userId);
+        feedback.setFeedback(desc);
+        feedback.setRepairName(repairName);
+        feedback.setRepairPhone(repairPhone);
+        feedback.setDescType(2);
+        feedback.setRepairTime(new Date());
+        int flag = personalService.addFeedBack(feedback);
+        if (flag == 1) {
+            jsonStr = ResponseUtils.getResult("200", "上报成功，请耐心等待", "");
+        } else {
+            jsonStr = ResponseUtils.getResult("-1", "上报失败", "");
+        }
 
+        return jsonStr;
+    }
 }

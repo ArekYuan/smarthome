@@ -18,7 +18,8 @@ public class ApplicationStartup implements ApplicationListener<ContextRefreshedE
 //        server.start();
         SocketService.start();
         log.info("socket :{}--port--->" + 8888);
-//        new Server(8082).run();
+
+
 
     }
 

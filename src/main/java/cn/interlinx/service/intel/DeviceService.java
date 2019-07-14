@@ -56,4 +56,7 @@ public interface DeviceService {
      */
     List<Device> selectAll();
 
+
+    Device selectByKey(String key);
+
 }

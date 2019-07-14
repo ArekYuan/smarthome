@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
 import java.util.List;
 
 @RestController
@@ -166,7 +165,7 @@ public class DeviceController {
     public String upDateDevice(Device device) throws IOException {
         Device device1 = service.selectId(device.getDeviceId());
         if (device1 != null) {
-            String mac = device.getDevice_mac();
+            String mac = device.getWifi_mac();
             ChannelClient client = ChannelPool.getChannelClient(mac);
             if (client != null) {
                 String hex = getData(device);//拼接成16进制字符串
@@ -190,14 +189,22 @@ public class DeviceController {
                     //向缓冲区读数据到字节数组
                     byteBuffer.get(bytes);
                     List<String> list = HexUtil.bytes2HexString(bytes);
-                    boolean isSuccess = initData(list);
-                    if (isSuccess) {
-                        int flag = service.updateDevice(device);
-                        if (flag == 1) {
-                            jsonStr = ResponseUtils.getResult("200", "设置成功", "1");
-                        } else {
-                            jsonStr = ResponseUtils.getResult("500", "设置失败，服务器异常", "");
-                        }
+                    String mcuData = HexUtil.getMcuData(list);
+                    switch (mcuData) {
+                        case "0x11"://设备上报
+                            int flag = service.updateDevice(device);
+                            if (flag == 1) {
+                                jsonStr = ResponseUtils.getResult("200", "设置成功", "1");
+                            } else {
+                                jsonStr = ResponseUtils.getResult("500", "设置失败，服务器异常", "");
+                            }
+                            break;
+                        case "0x12"://服务器控制设备状态
+                            break;
+
+                    }
+                    if (mcuData.equals("0x11")) {//
+
                     } else {
                         jsonStr = ResponseUtils.getResult("4005", "该设备或已掉线，请稍候重试", "");
                     }
@@ -226,6 +233,7 @@ public class DeviceController {
 
     /**
      * 设备返回 服务器 处理逻辑
+     *
      * @param strList
      * @return
      */
@@ -248,6 +256,15 @@ public class DeviceController {
             }
         }
         return b;
+    }
+
+    public Device getDevice(String key) {
+        return service.selectByKey(key);
+    }
+
+
+    public int insertDevice(Device device) {
+        return service.insert(device);
     }
 
 }

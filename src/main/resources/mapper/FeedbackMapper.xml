@@ -9,6 +9,7 @@
         <result column="repair_time" jdbcType="TIMESTAMP" property="repairTime"/>
         <result column="repair_phone" jdbcType="VARCHAR" property="repairPhone"/>
         <result column="repair_name" jdbcType="VARCHAR" property="repairName"/>
+        <result column="desc_type" jdbcType="INTEGER" property="descType"/>
     </resultMap>
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from feedback
@@ -16,10 +17,11 @@
   </delete>
     <insert id="insert" parameterType="cn.interlinx.entity.Feedback">
     insert into feedback (feedback_id, userid, repair_img_url, 
-      feedback, repair_time, repair_phone,repair_name
+      feedback, repair_time, repair_phone,repair_name,desc_type
       )
     values (#{feedbackId,jdbcType=INTEGER}, #{userid,jdbcType=INTEGER}, #{repairImgUrl,jdbcType=VARCHAR}, 
-      #{feedback,jdbcType=VARCHAR}, #{repairTime,jdbcType=TIMESTAMP}, #{repairPhone,jdbcType=VARCHAR},#{repairName,jdbcType=VARCHAR}
+      #{feedback,jdbcType=VARCHAR}, #{repairTime,jdbcType=TIMESTAMP}, #{repairPhone,jdbcType=VARCHAR},
+      #{repairName,jdbcType=VARCHAR},#{descType,jdbcType=INTEGER}
       )
   </insert>
     <update id="updateByPrimaryKey" parameterType="cn.interlinx.entity.Feedback">
@@ -29,16 +31,17 @@
       feedback = #{feedback,jdbcType=VARCHAR},
       repair_time = #{repairTime,jdbcType=TIMESTAMP},
       repair_phone = #{repairPhone,jdbcType=VARCHAR},
-      repair_name = #{repairName,jdbcType=VARCHAR}
+      repair_name = #{repairName,jdbcType=VARCHAR},
+      desc_type = #{descType,jdbcType=INTEGER}
     where feedback_id = #{feedbackId,jdbcType=INTEGER}
   </update>
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select feedback_id, userid, repair_img_url, feedback, repair_time, repair_phone,repair_name
+    select feedback_id, userid, repair_img_url, feedback, repair_time, repair_phone,repair_name,desc_type
     from feedback
     where feedback_id = #{feedbackId,jdbcType=INTEGER}
   </select>
     <select id="selectAll" resultMap="BaseResultMap">
-    select feedback_id, userid, repair_img_url, feedback, repair_time, repair_phone,repair_name
+    select feedback_id, userid, repair_img_url, feedback, repair_time, repair_phone,repair_name,desc_type
     from feedback
   </select>
 </mapper>
