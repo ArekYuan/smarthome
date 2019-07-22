@@ -15,7 +15,7 @@ public class HexUtil {
      * @param b
      * @return
      */
-    public static List<String> bytes2HexString(byte[] b) {
+    public static synchronized List<String> bytes2HexString(byte[] b) {
 
         List<String> list = new ArrayList<>();
         for (int i = 0; i < b.length; i++) {
@@ -48,14 +48,41 @@ public class HexUtil {
     }
 
 
-
     /**
      * @param strList mcu 端 向服务器发送的 16进通讯码
      * @return String
      */
+    public static List<String> getMcuDataList(List<String> strList) {
+        List<String> nbList = new ArrayList<>();
+//        String str = "";
+
+        if (strList != null && strList.size() > 0) {
+            if (strList.get(0).equals("55") && strList.get(1).equals("AA")) {
+//                int len = Integer.valueOf(List.get(2));
+                int b = Integer.parseInt(strList.get(2), 16);//将16进制数转成10进制数
+                int b1 = Integer.parseInt(strList.get(3), 16);//将16进制数转成10进制数
+                int a1 = (int) (b << 8 | b1);
+                System.out.println("---数据长度---->" + a1);
+                System.out.println("---实际长度---->" + strList.size());
+
+                if (a1 == strList.size()) {
+                    nbList.clear();
+                    nbList.addAll(strList);
+
+                } else if (a1 > strList.size()) {
+                    nbList.clear();
+                    nbList.addAll(strList.subList(0, a1));
+                }
+
+            }
+        }
+        return nbList;
+    }
+
+
     public static String getMcuData(List<String> strList) {
         String str = "";
-        if (strList != null && strList.size() > 0) {
+         if (strList != null && strList.size() > 0) {
             if (strList.get(0).equals("55") && strList.get(1).equals("AA")) {
 //                int len = Integer.valueOf(List.get(2));
                 int b = Integer.parseInt(strList.get(2), 16);//将16进制数转成10进制数
@@ -77,6 +104,7 @@ public class HexUtil {
                             str = "0x13";
                             break;
                     }
+
                 }
 
             }

@@ -18,7 +18,7 @@
         <result column="lat" jdbcType="VARCHAR" property="lat"/>
         <result column="lng" jdbcType="VARCHAR" property="lng"/>
         <result column="altitude" jdbcType="INTEGER" property="altitude"/>
-        <result column="device_key" jdbcType="VARCHAR" property="mac"/>
+        <result column="device_key" jdbcType="VARCHAR" property="deviceKey"/>
         <result column="wifi_mac" jdbcType="VARCHAR" property="wifiMac"/>
     </resultMap>
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">

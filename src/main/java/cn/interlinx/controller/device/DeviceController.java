@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -42,7 +43,7 @@ public class DeviceController {
             List<Device> devices = service.selectAll();
             if (devices != null && devices.size() > 0) {
                 for (Device device : devices) {
-                    if (device.getWifi_mac().equals(wifiMac)) {
+                    if (device.getWifiMac().equals(wifiMac)) {
                         device.setUserid(userId);
                         service.updateDevice(device);
                     }
@@ -165,7 +166,7 @@ public class DeviceController {
     public String upDateDevice(Device device) throws IOException {
         Device device1 = service.selectId(device.getDeviceId());
         if (device1 != null) {
-            String mac = device.getWifi_mac();
+            String mac = device.getWifiMac();
             ChannelClient client = ChannelPool.getChannelClient(mac);
             if (client != null) {
                 String hex = getData(device);//拼接成16进制字符串
@@ -189,8 +190,20 @@ public class DeviceController {
                     //向缓冲区读数据到字节数组
                     byteBuffer.get(bytes);
                     List<String> list = HexUtil.bytes2HexString(bytes);
-                    String mcuData = HexUtil.getMcuData(list);
-                    switch (mcuData) {
+
+
+                    List<String> datas = HexUtil.getMcuDataList(list);
+                    String[] a = list.toArray(new String[datas.size()]);
+//                    System.out.println("--mcu-通讯码->" + Arrays.toString(a));
+//                    log.info("--mcu-通讯码->" + Arrays.toString(a));
+//                    String sum = getSun(datas);
+                    String data = HexUtil.getMcuData(datas);
+//                    System.out.println("----sun-->" + sum);
+                    String he = datas.get(datas.size() - 1);
+
+
+//                    String mcuData = HexUtil.getMcuData(list);
+                    switch (data) {
                         case "0x11"://设备上报
                             int flag = service.updateDevice(device);
                             if (flag == 1) {
@@ -203,7 +216,7 @@ public class DeviceController {
                             break;
 
                     }
-                    if (mcuData.equals("0x11")) {//
+                    if (data.equals("0x11")) {//
 
                     } else {
                         jsonStr = ResponseUtils.getResult("4005", "该设备或已掉线，请稍候重试", "");

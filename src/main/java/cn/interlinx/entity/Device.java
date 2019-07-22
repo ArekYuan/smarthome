@@ -37,15 +37,22 @@ public class Device implements Serializable {
 
     private String deviceKey;
 
-    private String wifi_mac;
+    private String wifiMac;
 
-
-    public String getDevice_key() {
+    public String getDeviceKey() {
         return deviceKey;
     }
 
-    public void setDevice_key(String device_mac) {
+    public void setDeviceKey(String deviceKey) {
         this.deviceKey = deviceKey;
+    }
+
+    public String getWifiMac() {
+        return wifiMac;
+    }
+
+    public void setWifiMac(String wifiMac) {
+        this.wifiMac = wifiMac;
     }
 
     private static final long serialVersionUID = 1L;
@@ -178,13 +185,6 @@ public class Device implements Serializable {
         this.altitude = altitude;
     }
 
-    public String getWifi_mac() {
-        return wifi_mac;
-    }
-
-    public void setWifi_mac(String wifi_mac) {
-        this.wifi_mac = wifi_mac;
-    }
 
     @Override
     public String toString() {
@@ -209,7 +209,7 @@ public class Device implements Serializable {
         sb.append(", lng=").append(lng);
         sb.append(", altitude=").append(altitude);
         sb.append(", device_key=").append(deviceKey);
-        sb.append(", wifi_mac=").append(wifi_mac);
+        sb.append(", wifi_mac=").append(wifiMac);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

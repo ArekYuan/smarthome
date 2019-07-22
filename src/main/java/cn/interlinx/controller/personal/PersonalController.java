@@ -33,15 +33,15 @@ public class PersonalController {
      * @param expNo   物流单号
      * @return
      */
-    @RequestMapping(value = "/api/orderTraces", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/orderTraces")
     public String getOrderTraces(Integer userId, @Param("expCode") String expCode, String expNo) {
 //        Userinfo userinfo = loginService.selectByUserId(userId);
         KD_Info info = personalService.selectByKdName(expCode);
         if (info != null) {
             KdniaoTrackQueryAPI api = new KdniaoTrackQueryAPI();
             try {
-                String result = api.getOrderTracesByJson(info.getKd_num(), expNo);
-                jsonStr = ResponseUtils.getResult("200", "获取物流数据成功", result);
+                jsonStr = api.getOrderTracesByJson(info.getKd_num(), expNo);
+//                jsonStr = ResponseUtils.getResult("200", "获取物流数据成功", result);
             } catch (Exception e) {
                 e.printStackTrace();
                 jsonStr = ResponseUtils.getResult("-1", "获取物流数据失败", "");

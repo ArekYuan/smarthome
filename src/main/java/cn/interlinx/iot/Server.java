@@ -16,6 +16,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -108,19 +109,17 @@ public class Server implements Runnable {
                             byteBuffer.get(bytes);
 //                            expression = new String(bytes, "UTF-8");
                             List<String> list = HexUtil.bytes2HexString(bytes);
-                            String[] a = list.toArray(new String[list.size()]);
 
-                            for (int i = 0; i < a.length; i++) {
-                                log.info("--mcu-通讯码->" + a[i]);
-                            }
-//                            List<String> list1 = HexUtil.bytes2Hex(bytes);
 
-                            String data = HexUtil.getMcuData(list);
-                            String sum = getSun(list);
-
-                            System.out.println("----sun-->" + sum);
-                            String he = list.get(list.size() - 1);
-//                            System.out.println("---he-->" + he);
+                            List<String> datas = HexUtil.getMcuDataList(list);
+                            String[] a = list.toArray(new String[datas.size()]);
+                            System.out.println("--mcu-通讯码->" + Arrays.toString(a));
+                            log.info("--mcu-通讯码->" + Arrays.toString(a));
+                            String sum = getSun(datas);
+                            String data = HexUtil.getMcuData(datas);
+//                            System.out.println("----sun-->" + sum);
+                            String he = datas.get(datas.size() - 1);
+                            System.out.println("---he-->" + he);
                             boolean isToken = false;
                             if (he.equals(sum)) {//验证成功
                                 isToken = true;
@@ -129,18 +128,19 @@ public class Server implements Runnable {
                                         int chang_id = getChangId(list);
                                         int sheBei_id = getSBId(list);
                                         String mac = getMac(list);
-                                        System.out.println("-厂商-id-->" + chang_id);
-                                        System.out.println("-設備-id-->" + sheBei_id);
-                                        System.out.println("-wifi-mac-->" + mac);
+//                                        System.out.println("-厂商-id-->" + chang_id);
+//                                        System.out.println("-設備-id-->" + sheBei_id);
+//                                        System.out.println("-wifi-mac-->" + mac);
                                         String key = String.valueOf(chang_id + sheBei_id);
                                         Device device = service.selectByKey(key);
-                                        if (device != null && device.getWifi_mac() != null) {
+                                        if (device != null && device.getWifiMac() != null) {
                                             expression = key;
                                         } else {
                                             expression = key;
                                             Device device1 = new Device();
-                                            device1.setWifi_mac(mac);
-                                            device1.setDevice_key(key);
+                                            device1.setWifiMac(mac);
+                                            device1.setDeviceKey(key);
+
                                             int flag = service.insert(device1);
                                             if (flag == 1) {
                                                 System.out.println("插入设备成功");
@@ -148,29 +148,48 @@ public class Server implements Runnable {
                                                 System.out.println("插入设备失败");
                                             }
                                         }
+
+                                        list.clear();
+                                        a = null;
                                         break;
                                     case "0x11"://设备状态上报
+
+
+                                        list.clear();
+                                        a = null;
                                         break;
                                     case "0x12"://服务器控制设备状态
+
+                                        list.clear();
+                                        a = null;
                                         break;
                                     case "0x13"://心跳包
+
+                                        list.clear();
+                                        a = null;
                                         break;
                                     default://上报失败
+
+                                        list.clear();
+                                        a = null;
                                         break;
                                 }
                             } else {//验证失败
-
                                 isToken = false;
+                                list.clear();
+                                a = null;
                             }
 
 
-                            log.info("--mcu-哪种状态->" + data);
+//                            log.info("--mcu-哪种状态->" + data);
                             boolean flag = ChannelPool.channelMap.containsKey(expression);
                             if (!flag) {
                                 ChannelClient client = new ChannelClient(expression, socketChannel);
                                 ChannelPool.add(client);
                             }
                             if (socketChannel.finishConnect()) {
+                                list.clear();
+                                a = null;
                                 sendData(data, expression, isToken);
                             }
 
