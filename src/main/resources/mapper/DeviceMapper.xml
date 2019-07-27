@@ -26,18 +26,18 @@
     where device_id = #{deviceId,jdbcType=INTEGER}
   </delete>
     <insert id="insert" parameterType="cn.interlinx.entity.Device">
-    insert into device (device_id, userid, small_imgurl, 
-      large_imgurl, `desc`, take_off, 
-      `mode`, `lock`, wind_power, 
-      air_lamp, timing_set, water_level, 
-      `status`, lat, lng, altitude, 
+    insert into device (device_id, userid, small_imgurl,
+      large_imgurl, `desc`, take_off,
+      `mode`, `lock`, wind_power,
+      air_lamp, timing_set, water_level,
+      `status`, lat, lng, altitude,
       device_key,wifi_mac)
-    values (#{deviceId,jdbcType=INTEGER}, #{userid,jdbcType=INTEGER}, #{smallImgurl,jdbcType=VARCHAR}, 
-      #{largeImgurl,jdbcType=VARCHAR}, #{desc,jdbcType=VARCHAR}, #{takeOff,jdbcType=INTEGER}, 
-      #{mode,jdbcType=INTEGER}, #{lock,jdbcType=INTEGER}, #{windPower,jdbcType=INTEGER}, 
-      #{airLamp,jdbcType=INTEGER}, #{timingSet,jdbcType=INTEGER}, #{waterLevel,jdbcType=INTEGER}, 
-      #{status,jdbcType=INTEGER}, #{lat,jdbcType=VARCHAR}, #{lng,jdbcType=VARCHAR}, #{altitude,jdbcType=INTEGER}, 
-      #{device_key,jdbcType=VARCHAR},#{wifi_mac,jdbcType=VARCHAR})
+    values (#{deviceId,jdbcType=INTEGER}, #{userid,jdbcType=INTEGER}, #{smallImgurl,jdbcType=VARCHAR},
+      #{largeImgurl,jdbcType=VARCHAR}, #{desc,jdbcType=VARCHAR}, #{takeOff,jdbcType=INTEGER},
+      #{mode,jdbcType=INTEGER}, #{lock,jdbcType=INTEGER}, #{windPower,jdbcType=INTEGER},
+      #{airLamp,jdbcType=INTEGER}, #{timingSet,jdbcType=INTEGER}, #{waterLevel,jdbcType=INTEGER},
+      #{status,jdbcType=INTEGER}, #{lat,jdbcType=VARCHAR}, #{lng,jdbcType=VARCHAR}, #{altitude,jdbcType=INTEGER},
+      #{deviceKey,jdbcType=VARCHAR},#{wifiMac,jdbcType=VARCHAR})
   </insert>
     <update id="updateByPrimaryKey" parameterType="cn.interlinx.entity.Device">
     update device
@@ -56,13 +56,36 @@
       lat = #{lat,jdbcType=VARCHAR},
       lng = #{lng,jdbcType=VARCHAR},
       altitude = #{altitude,jdbcType=INTEGER},
-      device_key = #{device_key,jdbcType=VARCHAR},
-      wifi_mac = #{wifi_mac,jdbcType=VARCHAR}
+      device_key = #{deviceKey,jdbcType=VARCHAR},
+      wifi_mac = #{wifiMac,jdbcType=VARCHAR}
     where device_id = #{deviceId,jdbcType=INTEGER} and userid=#{userid,jdbcType=INTEGER}
   </update>
 
+
+    <update id="updateDeviceId" parameterType="cn.interlinx.entity.Device">
+    update device
+    set userid = #{userid,jdbcType=INTEGER},
+      small_imgurl = #{smallImgurl,jdbcType=VARCHAR},
+      large_imgurl = #{largeImgurl,jdbcType=VARCHAR},
+      `desc` = #{desc,jdbcType=VARCHAR},
+      take_off = #{takeOff,jdbcType=INTEGER},
+      `mode` = #{mode,jdbcType=INTEGER},
+      `lock` = #{lock,jdbcType=INTEGER},
+      wind_power = #{windPower,jdbcType=INTEGER},
+      air_lamp = #{airLamp,jdbcType=INTEGER},
+      timing_set = #{timingSet,jdbcType=INTEGER},
+      water_level = #{waterLevel,jdbcType=INTEGER},
+      `status` = #{status,jdbcType=INTEGER},
+      lat = #{lat,jdbcType=VARCHAR},
+      lng = #{lng,jdbcType=VARCHAR},
+      altitude = #{altitude,jdbcType=INTEGER},
+      device_key = #{deviceKey,jdbcType=VARCHAR},
+      wifi_mac = #{wifiMac,jdbcType=VARCHAR}
+    where device_id = #{deviceId,jdbcType=INTEGER}
+  </update>
+
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select device_id, userid, small_imgurl, large_imgurl, `desc`, take_off, `mode`, `lock`, 
+    select device_id, userid, small_imgurl, large_imgurl, `desc`, take_off, `mode`, `lock`,
     wind_power, air_lamp, timing_set, water_level, `status`, lat, lng, altitude, device_key,
     wifi_mac
     from device

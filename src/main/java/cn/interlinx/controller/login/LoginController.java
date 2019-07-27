@@ -1,6 +1,8 @@
 package cn.interlinx.controller.login;
 
+import cn.interlinx.entity.Device;
 import cn.interlinx.entity.Userinfo;
+import cn.interlinx.service.intel.DeviceService;
 import cn.interlinx.service.login.LoginService;
 import cn.interlinx.utils.consts.Constant;
 import cn.interlinx.utils.util.HttpUtils;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -26,7 +29,11 @@ import java.util.logging.Logger;
 public class LoginController {
 
     @Autowired
-    private LoginService loginService;
+    LoginService loginService;
+
+    @Autowired
+    DeviceService deviceService;
+
     String jsonObject;
     private Gson gson = new Gson();
 
@@ -100,6 +107,8 @@ public class LoginController {
                 if (wifiMac.equals("undefined")) {
                     wifiMac = "";
                 }
+
+
 //                Userinfo userinfo = insert(openid, nickName, avatarUrl, wifiMac);
                 Userinfo userinfo = StringUtils.getUser(openid, nickName, avatarUrl, wifiMac);
                 flag = loginService.insert(userinfo);
@@ -119,6 +128,25 @@ public class LoginController {
                 user.setImgurl(avatarUrl);
                 user.setMac(wifiMac);
                 flag = loginService.updateUserInfo(user);
+
+                if (user.getMac() != null && !user.getMac().equals("")) {
+                    List<Device> devices = deviceService.selectAll();
+                    if (devices != null && devices.size() > 0) {
+                        for (Device device : devices) {
+                            if (device.getWifiMac().equals(user.getMac())) {
+                                device.setUserid(user.getUserid());
+                               int flag1 = deviceService.updateDevice(device);
+                               if (flag1==1){
+                                   System.out.println("绑定用户成功");
+                               }else{
+                                   System.out.println("绑定用户失败");
+                               }
+                            }
+
+                        }
+                    }
+                }
+
                 if (flag == 1) {
                     msg = "授权成功";
                     userId = user.getUserid();
@@ -133,12 +161,6 @@ public class LoginController {
             obj.put("userId", userId);
             obj.put("msg", msg);
             jsonObject = gson.toJson(obj);
-//            if (user != null) {
-//                obj.put("data", user);
-//                jsonObject = ResponseUtils.getResult("0", "请求成功", obj);
-//            } else {
-//                jsonObject = ResponseUtils.getResult("500", "后台错误", "");
-//            }
         } else if (isErrorCode) {
             int errcode = (int) resp.get("errcode");
 

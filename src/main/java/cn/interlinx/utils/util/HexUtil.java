@@ -72,6 +72,9 @@ public class HexUtil {
                 } else if (a1 > strList.size()) {
                     nbList.clear();
                     nbList.addAll(strList.subList(0, a1));
+                } else {
+                    nbList.clear();
+                    nbList.addAll(strList);
                 }
 
             }
@@ -82,7 +85,7 @@ public class HexUtil {
 
     public static String getMcuData(List<String> strList) {
         String str = "";
-         if (strList != null && strList.size() > 0) {
+        if (strList != null && strList.size() > 0) {
             if (strList.get(0).equals("55") && strList.get(1).equals("AA")) {
 //                int len = Integer.valueOf(List.get(2));
                 int b = Integer.parseInt(strList.get(2), 16);//将16进制数转成10进制数
@@ -110,6 +113,22 @@ public class HexUtil {
             }
         }
         return str;
+    }
+
+
+    public static String getSun(String[] list) {
+        int sum = 0;
+        for (int i = 0; i < list.length - 2; i++) {
+            sum += Integer.parseInt(list[i], 16);
+        }
+        int mod = sum % 256;
+        String hex = Integer.toHexString(mod);
+        int len = hex.length();
+        if (len < 2) {
+            hex = "0" + hex;
+        }
+        return hex;
+
     }
 
 }

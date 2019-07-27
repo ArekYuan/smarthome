@@ -1,5 +1,7 @@
 package cn.interlinx.iot;
 
+import java.nio.channels.SocketChannel;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ChannelPool {
@@ -23,5 +25,17 @@ public class ChannelPool {
         }
         return clientSocket;
     }
+
+
+    public static String getKey( SocketChannel value) {
+        String key = null;
+        for (String getKey : channelMap.keySet()) {
+            if (channelMap.get(getKey).getChannel().equals(value)) {
+                key = getKey;
+            }
+        }
+        return key;
+    }
+
 
 }

@@ -4,6 +4,7 @@ import cn.interlinx.entity.Device;
 import cn.interlinx.entity.Userinfo;
 import cn.interlinx.iot.ChannelClient;
 import cn.interlinx.iot.ChannelPool;
+import cn.interlinx.iot.Server;
 import cn.interlinx.service.intel.DeviceService;
 import cn.interlinx.service.login.LoginService;
 import cn.interlinx.utils.util.HexUtil;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 @RestController
 public class DeviceController {
@@ -27,6 +29,7 @@ public class DeviceController {
 
     String jsonStr;
 
+    private Logger log = Logger.getLogger(DeviceController.class.getSimpleName());
 
     /**
      * 用户绑定设备 通过钱端 传过来的userID 去数据库查找该用户信息（mac地址）
@@ -35,7 +38,7 @@ public class DeviceController {
      * @param userId
      * @return
      */
-    @RequestMapping(value = "/smarthome/api/device/connect")
+    @RequestMapping(value = "/api/connect")
     public String connectDevice(Integer userId) {
         Userinfo userinfo = loginService.selectByUserId(userId);
         if (userinfo != null) {
@@ -62,7 +65,7 @@ public class DeviceController {
      *
      * @return String
      */
-    @RequestMapping(value = "/smarthome/api/device/selectAllDevice")
+    @RequestMapping(value = "/api/selectAllDevice")
     public String selectAllDevice() {
         List<Device> devices = service.selectAll();
         if (devices != null && devices.size() > 0) {
@@ -79,7 +82,7 @@ public class DeviceController {
      * @param device 设备信息
      * @return
      */
-    @RequestMapping(value = "/smarthome/api/device/bindDevice", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/bindDevice", method = RequestMethod.POST)
     public String bindDevice(Device device) {
         Userinfo userinfo = loginService.selectByUserId(device.getUserid());
         if (userinfo != null) {
@@ -102,7 +105,7 @@ public class DeviceController {
      * @param id 设备id
      * @return
      */
-    @RequestMapping(value = "/smarthome/api/device/unBindDevice", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/unBindDevice", method = RequestMethod.GET)
     public String unBindDevice(@RequestParam("id") Integer id) {
 
         Device device = service.selectId(id);
@@ -127,7 +130,7 @@ public class DeviceController {
      * @param id 设备id
      * @return
      */
-    @RequestMapping(value = "/smarthome/api/device/findDeviceById", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/findDeviceById", method = RequestMethod.GET)
     public String findDeviceById(@RequestParam("id") Integer id) {
         Device device = service.selectId(id);
         if (device != null) {
@@ -144,7 +147,7 @@ public class DeviceController {
      * @param id
      * @return
      */
-    @RequestMapping(value = "/smarthome/api/device/fndAllDevice", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/fndAllDevice", method = RequestMethod.GET)
     public String findAllDevice(@RequestParam("userId") Integer id) {
         List<Device> deviceList = service.selectAll(id);
         if (deviceList != null && deviceList.size() > 0) {
@@ -162,7 +165,7 @@ public class DeviceController {
      * @param device
      * @return
      */
-    @RequestMapping(value = "/smarthome/api/device/updateDevice", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/updateDevice", method = RequestMethod.POST)
     public String upDateDevice(Device device) throws IOException {
         Device device1 = service.selectId(device.getDeviceId());
         if (device1 != null) {
@@ -271,10 +274,370 @@ public class DeviceController {
         return b;
     }
 
+    /**
+     * 打开 mcu 设备
+     *
+     * @param key 用户传给的值
+     * @return
+     */
+    @RequestMapping("/api/openMcu")
+    public String openMcu(String key, int open) {
+
+        Device device = getDevice(key);
+        String tag = "mode";
+//        String resp = "";
+        byte[] resp = new byte[0];
+        if (device != null) {
+            ChannelClient client = ChannelPool.getChannelClient(key);
+            if (client != null) {
+                String[] tr;
+                if (open == 0) {//关闭设备
+                    device.setTakeOff(0);
+                    tr = new String[]{"55", "AA", "08", "12", "00", "01", "00"};
+                    String sun = HexUtil.getSun(tr);
+//                    resp = "0x55 0xAA 0x08 0x12 0x00 0x01 0x00 " + "0x" + sun + "";
+                    int s1 = Integer.parseInt(sun, 16);
+                    resp = new byte[]{(byte) 0x55, (byte) 0xAA, (byte) 0x08, (byte) 0x12, (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) s1};
+
+                } else if (open == 1) {// 打开设备
+                    device.setTakeOff(1);
+                    tr = new String[]{"55", "AA", "08", "12", "00", "01", "01"};
+                    String sun = HexUtil.getSun(tr);
+                    int s1 = Integer.parseInt(sun, 16);
+                    resp = new byte[]{(byte) 0x55, (byte) 0xAA, (byte) 0x08, (byte) 0x12, (byte) 0x00, (byte) 0x01, (byte) 0x01, (byte) s1};
+                }
+
+                int flag = sendMsg(device, resp, tag, client);
+                if (flag == 1) {
+                    jsonStr = ResponseUtils.getResult("200", "打开设备成功", device.getMode() + "");
+                } else {
+                    jsonStr = ResponseUtils.getResult("500", "打开设备失败", "-1");
+                }
+            }
+        } else {
+            jsonStr = ResponseUtils.getResult("4001", "设备不存在", "");
+        }
+
+
+        return jsonStr;
+    }
+
+    /**
+     * @param key  通道key
+     * @param mode 模式 0：连续运转模式  1：智能模式
+     * @return
+     */
+    @RequestMapping("/api/intelMode")
+    public String getIntelMode(String key, int mode) {
+        Device device = getDevice(key);
+        String tag = "mode";
+        byte[] resp = new byte[0];
+        if (device != null) {
+            ChannelClient client = ChannelPool.getChannelClient(key);
+            String[] tr;
+            if (client != null) {
+                if (mode == 0) {//连续运转模式
+                    device.setMode(0);
+                    tr = new String[]{"55", "AA", "08", "12", "01", "01", "00"};
+                    String sun = HexUtil.getSun(tr);
+//                    resp = "0x55 0xAA 0x08 0x12 0x01 0x01 0x00 " + "0x" + sun + "";
+                    int s1 = Integer.parseInt(sun, 16);
+                    resp = new byte[]{(byte) 0x55, (byte) 0xAA, (byte) 0x08, (byte) 0x12, (byte) 0x01, (byte) 0x01, (byte) 0x00, (byte) s1};
+
+
+                } else if (mode == 1) {// 智能模式
+                    device.setMode(1);
+                    tr = new String[]{"55", "AA", "08", "12", "01", "01", "01"};
+                    String sun = HexUtil.getSun(tr);
+//                    resp = "0x55 0xAA 0x08 0x12 0x01 0x01 0x01 " + "0x" + sun + "";
+
+                    int s1 = Integer.parseInt(sun, 16);
+                    resp = new byte[]{(byte) 0x55, (byte) 0xAA, (byte) 0x08, (byte) 0x12, (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) s1};
+
+                }
+
+                int flag = sendMsg(device, resp, tag, client);
+                if (flag == 1) {
+                    jsonStr = ResponseUtils.getResult("200", "智能能模式设置成功", device.getMode() + "");
+                } else {
+                    jsonStr = ResponseUtils.getResult("500", "智能能模式控制失败", "-1");
+                }
+            }
+        } else {
+            jsonStr = ResponseUtils.getResult("4001", "设备不存在", "");
+        }
+
+        return jsonStr;
+    }
+
+
+    /**
+     * 键盘锁
+     *
+     * @param key  通道key 值
+     * @param lock 0：解锁  1：上锁
+     * @return
+     */
+    @RequestMapping("/api/inputLock")
+    public String getInputLock(String key, int lock) {
+        Device device = getDevice(key);
+        String tag = "lock";
+        byte[] resp = new byte[0];
+        ChannelClient client = ChannelPool.getChannelClient(key);
+        if (client != null) {
+            String[] tr;
+            if (lock == 0) {//解锁
+                device.setLock(0);
+                tr = new String[]{"55", "AA", "08", "12", "02", "01", "00"};
+                String sun = HexUtil.getSun(tr);
+//                resp = "0x55 0xAA 0x08 0x12 0x02 0x01 0x00 " + "0x" + sun + "";
+
+                int s1 = Integer.parseInt(sun, 16);
+                resp = new byte[]{(byte) 0x55, (byte) 0xAA, (byte) 0x08, (byte) 0x12, (byte) 0x02, (byte) 0x01, (byte) 0x00, (byte) s1};
+
+
+            } else if (lock == 1) {// 上锁
+                device.setLock(1);
+                tr = new String[]{"55", "AA", "08", "12", "02", "01", "01"};
+                String sun = HexUtil.getSun(tr);
+//                resp = "0x55 0xAA 0x08 0x12 0x02 0x01 0x01 " + "0x" + sun + "";
+                int s1 = Integer.parseInt(sun, 16);
+                resp = new byte[]{(byte) 0x55, (byte) 0xAA, (byte) 0x08, (byte) 0x12, (byte) 0x02, (byte) 0x01, (byte) 0x01, (byte) s1};
+
+            }
+
+            int flag = sendMsg(device, resp, tag, client);
+            if (flag == 1) {
+                jsonStr = ResponseUtils.getResult("200", "设置设备锁成功", device.getLock() + "");
+            } else {
+                jsonStr = ResponseUtils.getResult("500", "设置设备锁失败", "-1");
+            }
+
+        }
+
+        return jsonStr;
+    }
+
+
+    /**
+     * 风力强度
+     *
+     * @param key
+     * @param strong 01 最弱,02 中,03 最强
+     * @return
+     */
+    @RequestMapping("/api/winStrong")
+    public String getWinStrong(String key, int strong) {
+        Device device = getDevice(key);
+        String tag = "strong";
+        byte[] resp = new byte[0];
+        ChannelClient client = ChannelPool.getChannelClient(key);
+        if (client != null) {
+            String[] tr;
+            if (strong == 1) {//最弱
+                device.setWindPower(1);
+                tr = new String[]{"55", "AA", "08", "12", "03", "01", "01"};
+                String sun = HexUtil.getSun(tr);
+//                resp = "0x55 0xAA 0x08 0x12 0x03 0x01 0x01 " + "0x" + sun + "";
+
+                int s1 = Integer.parseInt(sun, 16);
+                resp = new byte[]{(byte) 0x55, (byte) 0xAA, (byte) 0x08, (byte) 0x12, (byte) 0x03, (byte) 0x01, (byte) 0x01, (byte) s1};
+
+
+            } else if (strong == 2) {// 中
+                device.setWindPower(2);
+                tr = new String[]{"55", "AA", "08", "12", "03", "01", "02"};
+                String sun = HexUtil.getSun(tr);
+//                resp = "0x55 0xAA 0x08 0x12 0x03 0x01 0x02 " + "0x" + sun + "";
+
+                int s1 = Integer.parseInt(sun, 16);
+                resp = new byte[]{(byte) 0x55, (byte) 0xAA, (byte) 0x08, (byte) 0x12, (byte) 0x03, (byte) 0x01, (byte) 0x02, (byte) s1};
+
+            } else if (strong == 3) {//最强
+                device.setWindPower(3);
+                tr = new String[]{"55", "AA", "08", "12", "03", "01", "03"};
+                String sun = HexUtil.getSun(tr);
+//                resp = "0x55 0xAA 0x08 0x12 0x03 0x01 0x03 " + "0x" + sun + "";
+                int s1 = Integer.parseInt(sun, 16);
+                resp = new byte[]{(byte) 0x55, (byte) 0xAA, (byte) 0x08, (byte) 0x12, (byte) 0x03, (byte) 0x01, (byte) 0x03, (byte) s1};
+
+            }
+
+            int flag = sendMsg(device, resp, tag, client);
+            if (flag == 1) {
+                jsonStr = ResponseUtils.getResult("200", "设置风力强度成功", device.getWindPower() + "");
+            } else {
+                jsonStr = ResponseUtils.getResult("500", "设置风力强度失败", "-1");
+            }
+
+        }
+
+        return jsonStr;
+    }
+
+    /**
+     * 氛围灯
+     *
+     * @param key
+     * @param light 0 关闭，01 最弱,02 中,03 最强
+     * @return
+     */
+    @RequestMapping("/api/light")
+    public String getLight(String key, int light) {
+
+        Device device = getDevice(key);
+        String tag = "light";
+//        String resp = "";
+        byte[] resp = new byte[0];
+        ChannelClient client = ChannelPool.getChannelClient(key);
+        if (client != null) {
+            String[] tr;
+
+            if (light == 0) {//关闭
+                device.setAirLamp(0);
+                tr = new String[]{"55", "AA", "08", "12", "04", "01", "00"};
+                String sun = HexUtil.getSun(tr);
+                int s1 = Integer.parseInt(sun, 16);
+                resp = new byte[]{(byte) 0x55, (byte) 0xAA, (byte) 0x08, (byte) 0x12, (byte) 0x04, (byte) 0x01, (byte) 0x00, (byte) s1};
+            } else if (light == 1) {// 最弱
+                device.setAirLamp(1);
+                tr = new String[]{"55", "AA", "08", "12", "04", "01", "01"};
+                String sun = HexUtil.getSun(tr);
+                int s1 = Integer.parseInt(sun, 16);
+                resp = new byte[]{(byte) 0x55, (byte) 0xAA, (byte) 0x08, (byte) 0x12, (byte) 0x04, (byte) 0x01, (byte) 0x01, (byte) s1};
+            } else if (light == 2) {//中
+                device.setAirLamp(2);
+                tr = new String[]{"55", "AA", "08", "12", "04", "01", "02"};
+                String sun = HexUtil.getSun(tr);
+                int s1 = Integer.parseInt(sun, 16);
+                resp = new byte[]{(byte) 0x55, (byte) 0xAA, (byte) 0x08, (byte) 0x12, (byte) 0x04, (byte) 0x01, (byte) 0x02, (byte) s1};
+            } else if (light == 3) {//最强
+                device.setAirLamp(3);
+                tr = new String[]{"55", "AA", "08", "12", "04", "01", "03"};
+                String sun = HexUtil.getSun(tr);
+                int s1 = Integer.parseInt(sun, 16);
+                resp = new byte[]{(byte) 0x55, (byte) 0xAA, (byte) 0x08, (byte) 0x12, (byte) 0x04, (byte) 0x01, (byte) 0x03, (byte) s1};
+            }
+
+            int flag = sendMsg(device, resp, tag, client);
+            if (flag == 1) {
+                jsonStr = ResponseUtils.getResult("200", "设置氛围灯成功", device.getAirLamp() + "");
+            } else {
+                jsonStr = ResponseUtils.getResult("500", "设置氛围灯失败", "-1");
+            }
+
+        }
+
+        return jsonStr;
+
+    }
+
+    /**
+     * 定时设置
+     *
+     * @param key
+     * @param timeSt 0/ 无定时，01/3小时,02/6小时,03/12小时
+     * @return
+     */
+    @RequestMapping("/api/timeSt")
+    public String getTimeSet(String key, int timeSt) {
+
+        Device device = getDevice(key);
+        String tag = "timeSt";
+        byte[] resp = new byte[0];
+
+        ChannelClient client = ChannelPool.getChannelClient(key);
+        if (client != null) {
+            String[] tr;
+            if (timeSt == 0) {//无定时
+                device.setTimingSet(0);
+                tr = new String[]{"55", "AA", "08", "12", "05", "01", "00"};
+                String sun = HexUtil.getSun(tr);
+//                resp = "0x55 0xAA 0x08 0x12 0x05 0x01 0x00 " + "0x" + sun + "";
+
+                int s1 = Integer.parseInt(sun, 16);
+                resp = new byte[]{(byte) 0x55, (byte) 0xAA, (byte) 0x08, (byte) 0x12, (byte) 0x05, (byte) 0x01, (byte) 0x00, (byte) s1};
+
+
+            } else if (timeSt == 1) {// 3小时
+                device.setTimingSet(1);
+                tr = new String[]{"55", "AA", "08", "12", "05", "01", "01"};
+                String sun = HexUtil.getSun(tr);
+//                resp = "0x55 0xAA 0x08 0x12 0x05 0x01 0x01 " + "0x" + sun + "";
+                int s1 = Integer.parseInt(sun, 16);
+                resp = new byte[]{(byte) 0x55, (byte) 0xAA, (byte) 0x08, (byte) 0x12, (byte) 0x05, (byte) 0x01, (byte) 0x01, (byte) s1};
+
+            } else if (timeSt == 2) {//6小时
+                device.setTimingSet(2);
+                tr = new String[]{"55", "AA", "08", "12", "05", "01", "02"};
+                String sun = HexUtil.getSun(tr);
+//                resp = "0x55 0xAA 0x08 0x12 0x05 0x01 0x02 " + "0x" + sun + "";
+
+                int s1 = Integer.parseInt(sun, 16);
+                resp = new byte[]{(byte) 0x55, (byte) 0xAA, (byte) 0x08, (byte) 0x12, (byte) 0x05, (byte) 0x01, (byte) 0x02, (byte) s1};
+
+
+            } else if (timeSt == 3) {//12小时
+                device.setTimingSet(3);
+                tr = new String[]{"55", "AA", "08", "12", "05", "01", "03"};
+                String sun = HexUtil.getSun(tr);
+//                resp = "0x55 0xAA 0x08 0x12 0x05 0x01 0x03 " + "0x" + sun + "";
+
+                int s1 = Integer.parseInt(sun, 16);
+                resp = new byte[]{(byte) 0x55, (byte) 0xAA, (byte) 0x08, (byte) 0x12, (byte) 0x05, (byte) 0x01, (byte) 0x03, (byte) s1};
+
+
+            }
+
+            int flag = sendMsg(device, resp, tag, client);
+            if (flag == 1) {
+                jsonStr = ResponseUtils.getResult("200", "设置定时成功", device.getTimingSet() + "");
+            } else {
+                jsonStr = ResponseUtils.getResult("500", "设置定时失败", "-1");
+            }
+
+        }
+        return jsonStr;
+    }
+
+
+    private int sendMsg(Device device, byte[] resp, String tag, ChannelClient client) {
+        int flag = -1;
+        try {
+//            byte[] req = resp.getBytes();
+            ByteBuffer writeBuffer = ByteBuffer.allocate(resp.length);
+            writeBuffer.put(resp);
+            writeBuffer.flip();
+            client.getChannel().write(writeBuffer);
+            if (!writeBuffer.hasRemaining()) {//向设备发送消息回调
+                switch (tag) {
+                    case "open"://开关
+                    case "mode"://模式
+                    case "lock"://键盘锁
+                    case "strong"://风力强度
+                    case "light"://氛围灯
+                    case "timeSt"://定时
+                        flag = service.updateDeviceId(device);
+                        break;
+                }
+                System.out.println("向客戶端发送消息：" + resp);
+                log.info("向客戶端发送消息：" + resp);
+            } else {
+                writeBuffer.clear();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            log.finest("socket--消息发送异常-->" + e.getMessage());
+            flag = -1;
+        }
+
+        return flag;
+    }
+
     public Device getDevice(String key) {
         return service.selectByKey(key);
     }
-
 
     public int insertDevice(Device device) {
         return service.insert(device);

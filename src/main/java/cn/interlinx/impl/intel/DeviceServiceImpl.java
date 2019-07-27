@@ -48,4 +48,9 @@ public class DeviceServiceImpl implements DeviceService {
     public Device selectByKey(String key) {
         return mapper.selectByDeviceKey(key);
     }
+
+    @Override
+    public int updateDeviceId(Device record) {
+        return mapper.updateDeviceId(record);
+    }
 }

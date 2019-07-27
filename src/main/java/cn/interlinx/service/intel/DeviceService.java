@@ -59,4 +59,6 @@ public interface DeviceService {
 
     Device selectByKey(String key);
 
+    int updateDeviceId(Device record);
+
 }
